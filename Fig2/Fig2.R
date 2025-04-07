@@ -2,6 +2,7 @@
 #################
 # 10-07-2024
 # Written by Abebe Fola 
+# Modified 04-07-2025
 #################
 #################
 
@@ -166,6 +167,58 @@ ggsave("Fig2A.pdf", dpi=600, width=7.5, height=7)
 
 # Fig2B
 
+################
+
+
+library(ggplot2)
+library(dplyr)
+
+# Read the data
+inf.m7 <- read.csv("final_ibd_mle_long_622I.csv", header = TRUE)
+
+# Add a column to differentiate between Mutant and Wildtype samples based on k13_Arg622Ile_p1
+
+
+inf.m7$mutation_status <- ifelse(inf.m7$k13_Arg622Ile_p2 == "Wildtype", "Mutant", "Mutant")
+
+# Select relevant variables and remove NAs
+data_all <- inf.m7 %>%
+  dplyr::select(k13_Arg622Ile_p1, k13_Arg622Ile_p2, IBD, mutation_status) %>%
+  na.omit()
+
+# Plot the distribution of IBD values for Mutant samples
+plot_mutant <- ggplot(data_all %>% filter(mutation_status == "Mutant"), aes(x = IBD)) +
+  geom_histogram(bins = 30, fill = "#CC79A7", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of IBD Values for Mutant Samples",
+       x = "IBD Value", y = "Frequency")
+
+# Plot the distribution of IBD values for Wildtype samples
+plot_wildtype <- ggplot(data_all %>% filter(mutation_status == "Wildtype"), aes(x = IBD)) +
+  geom_histogram(bins = 30, fill = "#008080", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of IBD Values for Wildtype Samples",
+       x = "IBD Value", y = "Frequency")
+
+# Print both plots
+print(plot_mutant)
+colors <- c(rep("#008080",488),   rep("#CC79A7", 102))
+
+print(plot_wildtype)
+
+
+library(gridExtra)
+
+# Combine both plots into one view
+grid.arrange(plot_mutant, plot_wildtype, ncol = 2)
+
+
+
+
+################
+
+# Fig2C
+
 #############
 
 ####
@@ -197,15 +250,15 @@ ibdany+
   ggtitle("IBD vs 622I")
 
 # Save plot 
-ggsave("Fig2B.svg", dpi=600, width=7.5, height=7)
-ggsave("Fig2B.pdf", dpi=600, width=7.5, height=7)
+ggsave("Fig2C.svg", dpi=600, width=7.5, height=7)
+ggsave("Fig2C.pdf", dpi=600, width=7.5, height=7)
 
 
 
 
 ###############
 
-# Fig2C network IBD sharing mutant vs wildtype
+# Fig2D network IBD sharing mutant vs wildtype
 
 ###############
 
@@ -303,10 +356,6 @@ plot(IBDNW99, vertex.label=NA,vertex.size=7, main="IBD>=0.99, n=493", vertex.col
 legend(x="topleft", legend=c("Wildtype","Mutant"), col=c( "#008080", "#CC79A7"), cex=0.7, pch=c(19))
 
 # Save plot 
-ggsave("Fig2C.svg", dpi=600, width=7.5, height=7)
-ggsave("Fig2C.pdf", dpi=600, width=7.5, height=7)
-
-
-
-
+ggsave("Fig2D.svg", dpi=600, width=7.5, height=7)
+ggsave("Fig2D.pdf", dpi=600, width=7.5, height=7)
 
