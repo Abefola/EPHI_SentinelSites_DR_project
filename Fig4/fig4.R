@@ -253,6 +253,183 @@ legend("topleft", legend=levels(pop2), bg="transparent",pch=shape.mutation, cex=
 abline(v=0, h=0, col="black", lwd=1.5, lty=2)
 
 
+#############################
+############################
+## # SNP pi - Fig4C
+#############################
+############################
+# Load necessary libraries
+library(dplyr)
+library(ggplot2)
+
+# Read the CSV file into R (replace "snp_data.csv" with your actual file name)
+data <- read.csv("yourpop_file_freq.frq.csv")
+
+# Function to calculate nucleotide diversity (π) from MAF
+calculate_pi <- function(maf) {
+  return(2 * maf * (1 - maf))  # Formula for nucleotide diversity (pi)
+}
+
+# Apply the function to calculate pi for each row in the data
+data <- data %>%
+  mutate(pi = calculate_pi(MAF))  # Add a new column 'pi' with calculated values
+
+# View the result with pi values
+print(data)
+
+# Custom color palette
+custom_colors <- c("#009E73", "#0072B2", "#e6194b", "#f58231", "#CC79A7")
+
+
+data_filtered <- data %>%
+  filter(F > 0)
+# Plotting Nucleotide Diversity (π) by Population with custom colors
+ggplot(data, aes(x = CLST, y = pi, fill = CLST)) +
+  geom_boxplot() +  # Use boxplot to show distribution of pi within each population
+  scale_fill_manual(values = custom_colors) +  # Apply custom color palette
+  theme_minimal() +  # A minimal theme for the plot
+  labs(
+    title = "Nucleotide Diversity (π) by Population",
+    x = "Population",
+    y = "Nucleotide Diversity (π)"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels for better visibility
+    legend.position = "none"  # Remove legend as it is not necessary for this plot
+  )
+
+# Optionally, write the updated data with pi to a new CSV file
+write.csv(data, "snp_data_with_pi.csv", row.names = FALSE)
+
+
+#############################
+############################
+## # FST - Fig4C
+#############################
+############################
+##
+
+##
+# Load necessary libraries
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Load necessary libraries
+library(dplyr)
+library(ggplot2)
+
+# Read the CSV file into R (replace "snp_data.csv" with your actual file name)
+data <- read.csv("yourpop_file_freq.frq.csv")
+
+# Function to calculate expected FST from MAF
+calculate_he <- function(maf) {
+  return(2 * maf * (1 - maf))  # FST
+}
+
+# Apply the function to calculate He for each row in the data
+data <- data %>%
+  mutate(He = calculate_he(MAF))  # Add a new column 'FST' with calculated values
+
+# View the result with He values
+print(data)
+# Custom color palette
+custom_colors <- c("#009E73", "#0072B2", "#e6194b", "#f58231", "#CC79A7")
+
+# Plotting Expected Heterozygosity (He) by Population with custom colors
+ggplot(data, aes(x = CLST, y = He, fill = CLST)) +
+  geom_boxplot() +  # Use boxplot to show distribution of He within each population
+  scale_fill_manual(values = custom_colors) +  # Apply custom color palette
+  theme_minimal() +  # A minimal theme for the plot
+  labs(
+    title = "Expected Heterozygosity (He) by Population",
+    x = "Population",
+    y = "Expected Heterozygosity (He)"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels for better visibility
+    legend.position = "none"  # Remove legend as it is not necessary for this plot
+  )
+
+# Optionally, write the updated data with He to a new CSV file
+write.csv(data, "snp_data_with_He.csv", row.names = FALSE)
+
+# Create a new pairwise SNP comparison data frame based on the provided matrix
+pairwise_data <- data.frame(
+  Pop1 = c("Amhara", "Amhara", "Amhara", "Gambella", "Gambella", "Gambella", "Oromia", "Oromia", "SNNP"),
+  Pop2 = c("Gambella", "Oromia", "SNNP", "Oromia", "SNNP", "Somali", "SNNP", "Somali", "Somali"),
+  Value = c(0.0813143, 0.0309943, 0.0634062, 0.142062, 0.212685, 0.342403, 0.0310959, 0.0119178, 0.0139178)
+)
+
+# Convert Pop1 and Pop2 to factor with custom levels for better heatmap ordering
+pairwise_data$Pop1 <- factor(pairwise_data$Pop1, levels = c("Amhara", "Gambella", "Oromia", "SNNP", "Somali"))
+pairwise_data$Pop2 <- factor(pairwise_data$Pop2, levels = c("Amhara", "Gambella", "Oromia", "SNNP", "Somali"))
+
+# Create the heatmap using ggplot2
+ggplot(pairwise_data, aes(x = Pop1, y = Pop2, fill = Value)) +
+  geom_tile(color = "white") + # Add tiles
+  scale_fill_gradient(low = "white", high = "#D55E00") + # Color gradient for the values
+  theme_minimal() + # Minimal theme
+  labs(title = "Pairwise SNP Comparisons Between Populations",
+       x = "Population 1",
+       y = "Population 2",
+       fill = "SNP Value") + # Labels for axes and fill
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis labels for readability
+
+
+##
+# Heatmap of fst value 
+##
+
+# Load necessary libraries
+library(ggplot2)
+library(reshape2)
+library(pheatmap)
+
+# Create the data matrix
+data_matrix <- matrix(c(0.0, 0.081, 0.031, 0.063, 0.022,
+                        0.081, 0.0, 0.142, 0.213, 0.342,
+                        0.031, 0.142, 0.0, 0.031, 0.012,
+                        0.063, 0.213, 0.031, 0.0, 0.014,
+                        0.022, 0.342, 0.012, 0.014, 0.0),
+                      nrow = 5, ncol = 5, byrow = TRUE)
+
+# Assign row and column names to the matrix
+rownames(data_matrix) <- colnames(data_matrix) <- c("Amhara", "Gambella", "Oromia", "SNNP", "Somali")
+
+# Create the heatmap
+pheatmap(data_matrix, 
+         clustering_distance_rows = "euclidean", 
+         clustering_distance_cols = "euclidean", 
+         clustering_method = "complete", 
+         display_numbers = FALSE, 
+         fontsize_number = 14,
+         color = colorRampPalette(c("white", "#0072B2"))(100), 
+         main = "Heatmap with Dendrogram of Pairwise Data")
+
+
+# Create the heatmap without dendrograms
+pheatmap(data_matrix, 
+         clustering_distance_rows = "euclidean", 
+         clustering_distance_cols = "euclidean", 
+         clustering_method = "complete", 
+         display_numbers = FALSE, 
+         fontsize_number = 14,
+         color = colorRampPalette(c("white", "#0072B2"))(100), 
+         main = "Heatmap without Dendrogram",
+         treeheight_row = 0,  # Remove row dendrogram
+         treeheight_col = 0)  # Remove column dendrogram
+
+
+# Create the heatmap with a colorblind-friendly palette and increased font size for numbers
+pheatmap(data_matrix, 
+         clustering_distance_rows = "euclidean", 
+         clustering_distance_cols = "euclidean", 
+         clustering_method = "complete", 
+         display_numbers = FALSE, 
+         fontsize_number = 14,  # Increase the font size for numbers inside the cells
+         color = viridis::viridis(100),  # Using the Viridis color palette
+         main = "Heatmap with Dendrogram of Pairwise Data")
 
 
 
